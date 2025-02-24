@@ -378,6 +378,7 @@ class FlowMatchEulerDiscreteScheduler(SchedulerMixin, ConfigMixin):
         s_noise: float = 1.0,
         generator: Optional[torch.Generator] = None,
         return_dict: bool = True,
+        index=0
     ) -> Union[FlowMatchEulerDiscreteSchedulerOutput, Tuple]:
         """
         Predict the sample from the previous timestep by reversing the SDE. This function propagates the diffusion
@@ -421,22 +422,22 @@ class FlowMatchEulerDiscreteScheduler(SchedulerMixin, ConfigMixin):
                 ),
             )
 
-        if self.step_index is None:
-            self._init_step_index(timestep)
+        # if self.step_index is None: TODO: REMOVED
+        #     self._init_step_index(timestep)
 
         # Upcast to avoid precision issues when computing prev_sample
         sample = sample.to(torch.float32)
 
-        sigma = self.sigmas[self.step_index]
-        sigma_next = self.sigmas[self.step_index + 1]
+        sigma = self.sigmas[index]
+        sigma_next = self.sigmas[index + 1]
 
         prev_sample = sample + (sigma_next - sigma) * model_output
 
         # Cast sample back to model compatible dtype
         prev_sample = prev_sample.to(model_output.dtype)
 
-        # upon completion increase step index by one
-        self._step_index += 1
+        # # upon completion increase step index by one # TODO : REMOVED
+        # self._step_index += 1
 
         if not return_dict:
             return (prev_sample,)

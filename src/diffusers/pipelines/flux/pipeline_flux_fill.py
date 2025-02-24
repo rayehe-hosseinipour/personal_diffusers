@@ -905,6 +905,7 @@ class FluxFillPipeline(
 
         # 7. Denoising loop
         with self.progress_bar(total=num_inference_steps) as progress_bar:
+            index = 0
             for i, t in enumerate(timesteps):
                 if self.interrupt:
                     continue
@@ -926,7 +927,8 @@ class FluxFillPipeline(
 
                 # compute the previous noisy sample x_t -> x_t-1
                 latents_dtype = latents.dtype
-                latents = self.scheduler.step(noise_pred, t, latents, return_dict=False)[0]
+                latents = self.scheduler.step(noise_pred, t, latents, return_dict=False,index = index)[0]
+                index += 1
 
                 if latents.dtype != latents_dtype:
                     if torch.backends.mps.is_available():
